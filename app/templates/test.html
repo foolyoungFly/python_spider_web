@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+    <script src="./static/js/echarts.js"></script>
+	<script src="./static/js/macarons.js"></script>
+	<script src="./static/js/jquery-3.2.1.min.js"></script>
+</head>
+
+<body>
+    
+            <input name="topic" id="topic" type="text" />  
+            <button id="foo" name="foo">Bar</button>       
+      <div id="main" style="width: 1000px;height:800px;"></div>
+	<p>Hello: <span id="name"></span></p> 
+	<script type="text/javascript">
+	$(document).ready(function(){
+	$('#foo').bind("click", function(){
+	//alert($('#topic').val());
+	var dt ={"topic":$('#topic').val()};
+	var data=JSON.stringify(dt);
+	$.ajax({
+                type: "POST",
+                url:"/get_data",
+                data:data,// formid
+				dataType: "json",
+                error: function(request) {
+                    alert(request.responseText);
+                },
+                success: function(data) {
+                    if (data) {
+                         $( "#name" ).text( data.name );
+                    }
+                }
+				});
+});
+});
+    
+	</script>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'),'macarons');
+        var dt = {"nodes":[{
+                        //id : 0,
+                        category : 0,
+                        name : '0000',
+                        symbol : 'roundRect',
+                        value : 20,
+                        symbolSize : 80
+                    }, {
+                       // id : 1,
+                        category : 1,
+                        name : '1000',
+                        symbol : 'rect',
+                        value : 20,
+                        symbolSize : 70
+                    }, {
+                       // id : 2,
+                        category : 2,
+                        name : '1001',
+                        symbol : 'circle',
+                        value : 20,
+                        symbolSize : 60,
+                        yId:"jvm",
+                        host:"192.168.6.37",
+                        port:"7001",
+                        username:"weblogic",
+                        pwd:"weblogic1"
+                    }, {
+                       // id : 3,
+                        category : 2,
+                        name : '0001',
+                        symbol : 'circle',
+                        value : 20,
+                        symbolSize : 60
+                    }, {
+                        //id : 4,
+                        category : 1,
+                        name : '3000',
+                        symbol : 'rect',
+                        value : 20,
+                        symbolSize : 70
+                    }, {
+                       // id : 5,
+                        category : 2,
+                        name : '1002',
+                        symbol : 'circle',
+                        value : 5,
+                        symbolSize : 100
+						//son: "1343143"
+                    }, {
+                       // id : 6,
+                        category : 2,
+                        name : '2001',
+                        symbol : 'circle',
+                        value : 5,
+                        symbolSize : 60
+                    }, {
+                        //id : 7,
+                        category : 2,
+                        name : '2003',
+                        symbol : 'circle',
+                        value : 5,
+                        symbolSize : 60
+                    }, {
+                      //  id : 8,
+                        category : 1,
+                        name : '1003',
+                        symbol : 'rect',
+                        value : 20,
+                        symbolSize : 70
+                    }, {
+                       // id : 9,
+                        category : 2,
+                        name : '2004',
+                        symbol : 'circle',
+                        value : 20,
+                        symbolSize : 60
+                    }, {
+                       // id : 10,
+                        category : 2,
+                        name : '2005',
+                        symbol : 'circle',
+                        value : 20,
+                        symbolSize : 60
+                    }],
+					"links":[ //edges是其别名代表节点间的关系数据。
+                    {
+                        source : '1000',
+                        target : '1000'
+                    }, {
+                        source : '3000',
+                        target : '1000'
+                    }, {
+                        source : '1003',
+                        target : '1000'
+                    }, {
+                        source : '1001',
+                        target : '1000'
+                    }, {
+                        source : '0001',
+                        target : '1000'
+                    }, {
+                        source : '1002',
+                        target : '3000'
+                    }, {
+                        source : '2001',
+                        target : '3000'
+                    }, {
+                        source : '2003',
+                        target : '3000'
+                    }, {
+                        source : '2004',
+                        target : '1003'
+                    }, {
+                        source : '2005',
+                        target : '1003'
+                    } ],
+				"categories":[ //symbol name：用于和 legend 对应以及格式化 tooltip 的内容。 label有效
+                    {
+                        name : '负载',
+                        symbol : 'rect',
+                        label : { 
+                        }
+                    }, {
+                        name : '中间件',
+                        symbol : 'rect'
+                    }, {
+                        name : '端口号',
+                        symbol : 'roundRect'
+                    }, {
+                        name : '数据库',
+                        symbol : 'roundRect'
+                    }, {
+                        name : '用户名',
+                        symbol : 'roundRect'
+                    } ]
+		
+		};
+		
+		dt.nodes.forEach(function (node) {
+            node.label = {
+                normal: {
+                    show: true,
+                    position: 'right'
+                }
+            };
+            node.draggable = true;
+ 
+        });
+        // 指定图表的配置项和数据
+        var option = {
+            title:{
+				text:'力导向图示例',
+				
+			},
+			
+			tooltip: {},
+			legend: [{
+            // selectedMode: 'single',
+            data: dt.categories.map(function (a) {
+                return a.name;
+            })
+        }],
+			animation: false,
+			series : [
+            {
+                name: '示例',
+                type: 'graph',
+                layout: 'force',
+				
+                    hoverAnimation : true,//是否开启鼠标悬停节点的显示动画
+                    coordinateSystem : null,//坐标系可选
+                    xAxisIndex : 0, //x轴坐标 有多种坐标系轴坐标选项
+                    yAxisIndex : 0, //y轴坐标 
+                    force : { //力引导图基本配置
+                        //initLayout: ,//力引导的初始化布局，默认使用xy轴的标点
+                        repulsion : 100,//节点之间的斥力因子。支持数组表达斥力范围，值越大斥力越大。
+                        gravity : 0.03,//节点受到的向中心的引力因子。该值越大节点越往中心点靠拢。
+                        edgeLength :80,//边的两个节点之间的距离，这个距离也会受 repulsion。[10, 50] 。值越小则长度越长
+                        layoutAnimation : true
+                    //因为力引导布局会在多次迭代后才会稳定，这个参数决定是否显示布局的迭代动画，在浏览器端节点数据较多（>100）的时候不建议关闭，布局过程会造成浏览器假死。                        
+                    },
+                    roam : true,//是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移，可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+                    nodeScaleRatio : 0.6,//鼠标漫游缩放时节点的相应缩放比例，当设为0时节点不随着鼠标的缩放而缩放
+                    draggable : true,//节点是否可拖拽，只在使用力引导布局的时候有用。
+                    //focusNodeAdjacency : true,
+                data : dt.nodes,
+					
+				categories : dt.categories ,
+					
+				links : dt.links
+					
+				
+                
+                
+                
+            }
+        ]
+    };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+</html>
+</html>

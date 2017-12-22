@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+    <script src="./static/js/echarts.js"></script>
+	<script src="./static/js/macarons.js"></script>
+	<script src="./static/js/jquery-3.2.1.min.js"></script>
+	
+</head>
+
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    
+    <input type="text"  id="search" name= "search" data-provide="typeahead" placeholder="Search Topic..."/> <button id="foo"  name="foo" type="button">搜索</button>
+    <div id="main" style="width: 1200px;height:800px;"></div>
+    <script type="text/javascript">
+	
+        // 基于准备好的dom，初始化echarts实例
+		//var show_topic = function(){
+        var myChart = echarts.init(document.getElementById('main'),'macarons');
+        myChart.showLoading();
+		
+		var set_data = function (dt) {
+		myChart.hideLoading();
+		
+		var categories = [];
+        for (var i = 0; i < 4; i++) {
+            categories[i] = {
+            name: '级别' + i
+        };
+        }
+		dt.nodes.forEach(function (node) {
+            node.label = {
+                normal: {
+                    show: true,
+                    position: 'right'
+                }
+            };
+            node.draggable = true;
+ 
+        });
+        // 指定图表的配置项和数据
+        var option = {
+            title:{
+				text:'百度百科关系图',
+				
+			},
+			
+			tooltip: {},
+			legend: [{
+            // selectedMode: 'single',
+            data: categories.map(function (a) {
+                return a.name;
+            })
+        }],
+			animation: false,
+			series : [
+            {
+                name: '示例',
+                type: 'graph',
+                layout: 'force',
+				
+                    hoverAnimation : true,//是否开启鼠标悬停节点的显示动画
+                    coordinateSystem : null,//坐标系可选
+                    xAxisIndex : 0, //x轴坐标 有多种坐标系轴坐标选项
+                    yAxisIndex : 0, //y轴坐标 
+                    force : { //力引导图基本配置
+                        //initLayout: ,//力引导的初始化布局，默认使用xy轴的标点
+                        repulsion : 150,//节点之间的斥力因子。支持数组表达斥力范围，值越大斥力越大。
+                        gravity : 0.03,//节点受到的向中心的引力因子。该值越大节点越往中心点靠拢。
+                        edgeLength :60,//边的两个节点之间的距离，这个距离也会受 repulsion。[10, 50] 。值越小则长度越长
+                        layoutAnimation : true
+                    //因为力引导布局会在多次迭代后才会稳定，这个参数决定是否显示布局的迭代动画，在浏览器端节点数据较多（>100）的时候不建议关闭，布局过程会造成浏览器假死。                        
+                    },
+                    roam : true,//是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移，可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+                    nodeScaleRatio : 0.6,//鼠标漫游缩放时节点的相应缩放比例，当设为0时节点不随着鼠标的缩放而缩放
+                    draggable : true,//节点是否可拖拽，只在使用力引导布局的时候有用。
+                    //focusNodeAdjacency : true,
+                data : dt.nodes,
+					
+				categories : categories ,
+					
+				links : dt.links
+					
+				
+                
+                
+                
+            }
+        ]
+    };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+	
+	};	
+	//初始化页面
+	$.getJSON("/json",set_data);
+	//转化表单函数
+	/*function getFormJson(frm) {
+    var o = {};
+    var a = $(frm).serializeArray();
+    $.each(a, function () {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+
+     return o;
+    }
+	$("#sub_button").bind("click",
+                 function() {
+                                 
+		$.ajax({
+                cache: true,
+                type: "POST",
+                url:/get_data,
+                data:getFormJson($('#subform')),// formid
+				dataType: "json",
+                async: false,
+                error: function(request) {
+                    alert("Connection error");
+                },
+                success: function(data) {
+                    if (data) {
+                        //set_zhi_graph(data);
+                    }
+                }
+				});
+		 });
+		 */
+	
+
+
+
+    </script>
+
+
+    
+    <script type="text/javascript">
+	$(document).ready(function(){
+	$('#foo').bind("click", function(){
+	//alert($('#search').val());
+	var dt ={"topic":$('#search').val()};
+	var data=JSON.stringify(dt);
+	myChart.showLoading();
+	setTimeout(function(){
+	$.ajax({
+                timeout:1000000,
+                type: "POST",
+                url:"/get_data",
+                data:data,// formid
+				dataType: "json",
+                error: function(request) {
+                    alert(request.responseText);
+                },
+                success: function(data) {
+               
+						
+                         set_data(data);
+                    
+                }
+				});
+				},1000);
+});
+});
+	
+		 </script>
+    
+</body>
+</html>
+</html>
